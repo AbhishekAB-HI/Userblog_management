@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "ES2020",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    
-    "strict": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true
-  }
+    "module": "ESNext", // Use ESNext for ESM support.
+    "target": "ES2020", // ES2020 is fine; you can also use "ESNext" for the latest features.
+    "moduleResolution": "node", // Node.js-compatible module resolution.
+    "esModuleInterop": true, // Ensures compatibility with CommonJS modules.
+    "allowSyntheticDefaultImports": true, // Enables `import` syntax for CommonJS modules.
+    "allowImportingTsExtensions": true, // Allows importing TypeScript files with explicit `.ts` extensions.
+    "skipLibCheck": true, // Skips type checking of declaration files for faster compilation.
+    "strict": true, // Enables strict type-checking options.
+    "noEmit": true // Prevents emitting JS files; useful when using `ts-node`.
+  },
+  "include": ["**/*.ts"], // Includes all TypeScript files.
+  "exclude": ["node_modules"] // Excludes `node_modules` from compilation.
 }
