@@ -44,7 +44,7 @@ const Registration: React.FC = () => {
         }
 
         const { data } = await axios.post(
-          `http://localhost:3000/api/user/register`,
+          `https://userblog-management.onrender.com/api/user/register`,
           formData,
           {
             headers: {

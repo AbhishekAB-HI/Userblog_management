@@ -13,17 +13,14 @@ const port = process.env.PORT || 3000
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://userblog-management-kyc7.vercel.app",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
-
 app.use("/api/user", userRoute);
-
-
 
 app.listen(port,()=>{ 
     console.log(`Server running at port ${port}`)

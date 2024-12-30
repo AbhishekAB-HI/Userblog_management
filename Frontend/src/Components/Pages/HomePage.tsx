@@ -87,7 +87,7 @@ const UserManagementDashboard = () => {
         }
 
         const { data } = await axiosInterseptor.post(
-          "http://localhost:3000/api/user/editpost",
+          "https://userblog-management.onrender.com/api/user/editpost",
           formData,
           {
             headers: {
@@ -110,7 +110,7 @@ const UserManagementDashboard = () => {
   const findAllPost = async () => {
     try {
       const { data } = await axiosInterseptor.get(
-        "http://localhost:3000/api/user/getpost"
+        "https://userblog-management.onrender.com/api/user/getpost"
       );
 
       if (data.message === "All post found") {
@@ -141,7 +141,7 @@ const UserManagementDashboard = () => {
         }
 
         const { data } = await axiosInterseptor.post(
-          "http://localhost:3000/api/user/addpost",
+          "https://userblog-management.onrender.com/api/user/addpost",
           formData,
           {
             headers: {
@@ -179,7 +179,7 @@ const handleDelete = async (userId: string) => {
     console.log("Delete user:", userId);
     try {
       const { data } = await axiosInterseptor.delete(
-        `http://localhost:3000/api/user/deletepost?id=${userId}`
+        `https://userblog-management.onrender.com/api/user/deletepost?id=${userId}`
       );
 
       if (data.message === "Post deleted successful") {
