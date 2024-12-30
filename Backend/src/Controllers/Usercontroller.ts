@@ -24,14 +24,18 @@ class Usercontroller {
 
   async AddPost(req: Request, res: Response) {
     try {
+     
       const { title, description } = req.body;
       const postimage = req.file?.path;
+
+      console.log(req.body,"2222222222222");
+      console.log(postimage, "2222222222222");
       const addingthepost = await this.userServices.SendPostinfo(
         title,
         description,
         postimage
       );
-
+  
       res.status(200).json({ message: "Upload the file" });
     } catch (error) {
       console.log(error);

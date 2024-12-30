@@ -25,6 +25,7 @@ const UserManagementDashboard = () => {
   const [savePost, setSavePost] = useState<IPost[]>([]);
   const [saveID, setSaveid] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+ const [Loading, setLoading] = useState(false)
 
  interface ExpandedPosts {
    [key: string]: boolean;
@@ -78,6 +79,7 @@ const UserManagementDashboard = () => {
     validationSchema,
     onSubmit: async (values) => {
       try {
+        setLoading(true)
         const formData = new FormData();
         formData.append("title", values.title);
         formData.append("saveID", saveID);
@@ -103,6 +105,8 @@ const UserManagementDashboard = () => {
         }
       } catch (error) {
         console.error(error);
+      }finally{
+         setLoading(false);
       }
     },
   });
@@ -136,6 +140,7 @@ const UserManagementDashboard = () => {
         const formData = new FormData();
         formData.append("title", values.title);
         formData.append("description", values.description);
+        console.log(file,"111111111111111111111111111111111")
         if (file) {
           formData.append("productimage", file);
         }
@@ -419,7 +424,7 @@ const handleDelete = async (userId: string) => {
                             clipRule="evenodd"
                           />
                         </svg>
-                        Add new product
+                        {Loading ? "Loading..." : " Add new product"}
                       </button>
                     </form>
                   </div>
@@ -560,7 +565,7 @@ const handleDelete = async (userId: string) => {
                         type="submit"
                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                       >
-                        Submit
+                        {Loading ? "Loading..." : "Submit"}
                       </button>
                     </form>
                   </div>
