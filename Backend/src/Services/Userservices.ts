@@ -14,33 +14,28 @@ class UserServices {
     email: string,
     password: string
   ): Promise<Tockens | undefined> {
-    try {
-      console.log(email, "email");
-      console.log(password, "password");
-
-      const verifytheEmail = await this.userRepository.verifyEmail(email);
-
-      const userinfo = await this.userRepository.findtheEmail(email, password);
-
-      if (userinfo?.password) {
-        const hashedpassword = await HashPassword.comparePassword(
-          password,
-          userinfo?.password
-        );
-        if (hashedpassword) {
-          const userPayload: userPayload = {
-            id: userinfo._id as ObjectId,
-          };
-          let accesstocken = generateAccessToken(userPayload);
-          let refreshtocken = generateRefreshToken(userPayload);
-          return { accesstocken, refreshtocken };
-        } else {
-          throw new Error("Wrong password");
-        }
-      }
-    } catch (error) {
-      console.log(error);
+    const verifytheEmail = await this.userRepository.verifyEmail(email);
+    const userinfo = await this.userRepository.findtheEmail(email, password);
+    if (!userinfo?.password) {
+      throw new Error("Invalid credentials");
     }
+    const hashedpassword = await HashPassword.comparePassword(
+      password,
+      userinfo?.password
+    );
+
+    if (!hashedpassword) {
+      throw new Error("Wrong password");
+    }
+
+    const userPayload: userPayload = {
+      id: userinfo._id as ObjectId,
+    };
+
+    const accesstocken = generateAccessToken(userPayload);
+    const refreshtocken = generateRefreshToken(userPayload);
+
+    return { accesstocken, refreshtocken };
   }
 
   async gettheIddetail(postId: string | any): Promise<void> {

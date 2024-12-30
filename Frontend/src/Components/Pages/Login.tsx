@@ -48,10 +48,17 @@ const Loginpage: React.FC = () => {
           dispatch(setUserAccessTocken(data.accessToc));
           dispatch(setUserRefreshtocken(data.refreshToc));
           navigate("/dashboard");
+        }else{
+          toast.error("Login failed")
         }
       } catch (error) {
-        console.error("Error during login:", error);
-        toast.error("Login failed. Please try again.");
+   if (axios.isAxiosError(error)) {
+     const errorMessage = error.response?.data?.message || "An error occurred";
+     toast.error(errorMessage);
+   } else {
+     toast.error("Unknown error occurred");
+   }
+   console.error("Login error:", error);
       }
     },
   });

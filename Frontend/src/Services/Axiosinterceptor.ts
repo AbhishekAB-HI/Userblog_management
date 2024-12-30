@@ -8,11 +8,10 @@ import toast from "react-hot-toast";
 
 // ClientNew;
 const axiosInterseptor = axios.create({
-  baseURL: "https://userblog-management-kyc7.vercel.app",
+  baseURL: "https://userblog-management.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
-  
 });
 
 axiosInterseptor.interceptors.request.use(
@@ -48,7 +47,7 @@ axiosInterseptor.interceptors.response.use(
 
         if (refreshToken) {
           const { data } = await axios.post(
-            "https://userblog-management.onrender.com/refreshtoken",
+            "http://localhost:3000/refreshtoken",
             { refreshToken }
           );
 

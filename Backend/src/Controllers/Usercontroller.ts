@@ -126,9 +126,16 @@ class Usercontroller {
         res
           .status(200)
           .json({ message: "User Logined Successful", accessToc, refreshToc });
+          return;
       }
     } catch (error) {
-      console.log(error);
+       console.error(error); // Logs the error for debugging
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Something went wrong" });
+    }
+
     }
   }
 }

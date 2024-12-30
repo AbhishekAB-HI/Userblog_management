@@ -136,11 +136,10 @@ const UserManagementDashboard = () => {
     validationSchema,
     onSubmit: async (values) => {
       try {
-      console.log("Form submitted with values:", values);
+         setLoading(true);
         const formData = new FormData();
         formData.append("title", values.title);
         formData.append("description", values.description);
-        console.log(file,"111111111111111111111111111111111")
         if (file) {
           formData.append("productimage", file);
         }
@@ -152,9 +151,7 @@ const UserManagementDashboard = () => {
             headers: {
               "Content-Type": "multipart/form-data",
             },
-            withCredentials:true
-          },
-          
+          }
         );
 
         if (data.message === "Upload the file") {
@@ -165,6 +162,8 @@ const UserManagementDashboard = () => {
       } catch (error) {
         console.error(error);
         toast.error("File upload failed");
+      }finally{
+          setLoading(false);
       }
     },
   });
@@ -395,6 +394,7 @@ const handleDelete = async (userId: string) => {
                             <input
                               id="file-upload"
                               name="productimage"
+                              required
                               type="file"
                               onChange={(e) => {
                                 if (e.target.files) {
@@ -487,7 +487,6 @@ const handleDelete = async (userId: string) => {
                             name="title"
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
-                            value={formik.values.title}
                             className="bg-gray-50 border border-black text-black text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                             placeholder="Type product title"
                           />
