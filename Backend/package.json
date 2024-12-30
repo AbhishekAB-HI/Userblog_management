@@ -5,6 +5,7 @@
   "main": "Server.js",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "start": "nodemon --watch . --ext ts,json --exec ts-node --esm Server.ts"
   },
   "author": "",
