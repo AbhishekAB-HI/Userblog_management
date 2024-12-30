@@ -13,9 +13,9 @@ const router = Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "../../BW-1 TASK USER-BLOG-MANAGEMENT/Backend/src/uploads"); 
-    // const uploadPath = path.join(__dirname, "uploads"); // Use absolute path
-    // cb(null, uploadPath);
+    // cb(null, "../../BW-1 TASK USER-BLOG-MANAGEMENT/Backend/src/uploads"); 
+     const uploadPath = path.join(__dirname, "uploads"); // Use absolute path
+     cb(null, uploadPath);
   
   },
   filename: (req, file, cb) => {
