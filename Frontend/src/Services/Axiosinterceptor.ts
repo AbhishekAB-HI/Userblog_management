@@ -12,6 +12,7 @@ const axiosInterseptor = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  
 });
 
 axiosInterseptor.interceptors.request.use(

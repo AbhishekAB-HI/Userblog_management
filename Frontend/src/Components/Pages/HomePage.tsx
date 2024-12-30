@@ -152,7 +152,9 @@ const UserManagementDashboard = () => {
             headers: {
               "Content-Type": "multipart/form-data",
             },
-          }
+            withCredentials:true
+          },
+          
         );
 
         if (data.message === "Upload the file") {

@@ -20,7 +20,12 @@ app.use(
   })
 );
 
+app.options("*", cors());
+
+
 app.use("/api/user", userRoute);
+
+
 
 app.listen(port,()=>{ 
     console.log(`Server running at port ${port}`)
