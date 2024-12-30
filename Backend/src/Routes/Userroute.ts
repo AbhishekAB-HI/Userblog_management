@@ -5,6 +5,11 @@ import UserServices from "../Services/Userservices.ts";
 import multer from "multer"
 import path from "path"
 import AuthenticationMiddleware from "../Middleware/UserAuthMiddleware.ts";
+import { fileURLToPath } from "url";
+
+// Define __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const userRepository = new UserRepository()
 const userServices = new UserServices(userRepository);
@@ -14,8 +19,8 @@ const router = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // cb(null, "../../BW-1 TASK USER-BLOG-MANAGEMENT/Backend/src/uploads"); 
-     const uploadPath = path.join(__dirname, "uploads"); // Use absolute path
-     cb(null, uploadPath);
+       const uploadPath = path.join(__dirname, "uploads"); // Use absolute path
+       cb(null, uploadPath);
   
   },
   filename: (req, file, cb) => {
