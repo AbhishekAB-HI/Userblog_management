@@ -10,7 +10,6 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { IPost } from "../../interfaces/Userinfo";
 import {  useFormik } from "formik";

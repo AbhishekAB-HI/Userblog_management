@@ -28,7 +28,10 @@ function App() {
             path="/register"
             element={<UserLogoutPrivateRoute element={<Registration />} />}
           />
-          <Route path="/dashboard"  element={<UserManagementDashboard />}  />
+          <Route
+            path="/dashboard"
+            element={<UserPrivateRoute element={<UserManagementDashboard />} />}
+          />
         </Routes>
       </Router>
     </>
