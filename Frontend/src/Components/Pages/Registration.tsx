@@ -5,7 +5,7 @@ import { useRegistrationForm } from "../../Customhookslogic/Registrationform";
 
 const Registration: React.FC = () => {
   const navigate = useNavigate();
-  const formik = useRegistrationForm(navigate);
+  const {formik ,Loading}= useRegistrationForm(navigate);
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -69,13 +69,24 @@ const Registration: React.FC = () => {
             />
           </div>
           <div className="flex items-center justify-center">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-              disabled={formik.isSubmitting}
-            >
-              SIGN UP
-            </button>
+            {Loading ? (
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit"
+                disabled={formik.isSubmitting}
+              >
+              Loading....
+              </button>
+            ) : (
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit"
+                disabled={formik.isSubmitting}
+              >
+                SIGN UP
+              </button>
+            )}
+           
           </div>
           <p className="text-center text-gray-500 text-xs mt-4">
             Already have an account?{" "}

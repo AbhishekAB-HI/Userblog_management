@@ -7,7 +7,7 @@ import useLogin from "../../Customhookslogic/Loginhook";
 import { Link } from "react-router-dom";
 
 const LoginPage: React.FC = () => {
-  const { handleLogin } = useLogin();
+  const { handleLogin, Loading } = useLogin();
 
  const validationSchema = Yup.object({
    email: Yup.string()
@@ -61,7 +61,11 @@ const LoginPage: React.FC = () => {
             onBlur={formik.handleBlur}
           />
           <div className="flex items-center justify-center">
-            <Button type="submit" label="LOG IN" />
+            {Loading ? (
+              <Button type="button" label="Loading..." />
+            ) : (
+              <Button type="submit" label="LOG IN" />
+            )}
           </div>
           <p className="text-center text-gray-500 text-xs">
             Create an account?{" "}

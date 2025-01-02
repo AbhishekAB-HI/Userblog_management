@@ -3,9 +3,12 @@ import * as Yup from "yup";
 import { registerUser } from "../API/Userapi";
 import toast from "react-hot-toast";
 import { API_MESSAGES } from "../Messages/Apimessages";
+import { useState } from "react";
 
-export const useRegistrationForm = (navigate: Function) => {
-  const validationSchema = Yup.object().shape({
+  export const useRegistrationForm = (navigate: Function) => {
+    const [Loading, setLoading] = useState(false);
+
+    const validationSchema = Yup.object().shape({
     name: Yup.string()
       .trim()
       .required("Name is required")
@@ -29,7 +32,7 @@ export const useRegistrationForm = (navigate: Function) => {
       .required("Confirm Password is required"),
   });
 
-  return useFormik({
+const formik = useFormik({
     initialValues: {
       name: "",
       email: "",
@@ -40,11 +43,12 @@ export const useRegistrationForm = (navigate: Function) => {
     validationSchema,
     onSubmit: async (values) => {
       try {
+        setLoading(true);
         const formData = new FormData();
         formData.append("name", values.name);
         formData.append("email", values.email);
         formData.append("password", values.password);
-        formData.append("confirmpassword", values.confirmpassword);  
+        formData.append("confirmpassword", values.confirmpassword);
         if (values.profileImage) {
           formData.append("profileImage", values.profileImage);
         }
@@ -59,7 +63,16 @@ export const useRegistrationForm = (navigate: Function) => {
       } catch (error) {
         console.error("Registration error:", error);
         toast.error(API_MESSAGES.ERROR_OCCURRED);
+      } finally {
+        setLoading(false);
       }
     },
   });
+  
+  return { formik, Loading };
+
+  
 };
+
+
+
