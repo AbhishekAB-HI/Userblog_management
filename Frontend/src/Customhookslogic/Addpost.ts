@@ -1,15 +1,13 @@
-import { addPost, fetchPosts } from "../API/Userapi";
+import { addPost } from "../API/Userapi";
 import { useFormik } from "formik";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import * as Yup from "yup";
 import { usePosts } from "./Posthook";
-import { IPost } from "../interfaces/Userinfo";
 
 export const Postadding = () => {
     const [Loading1, setLoading1] = useState(false)
     const [isOpen, setIsOpen] = useState(false);
-    const [posts, setPosts] = useState<IPost[]>([]);
     const { fetchAllPosts  } = usePosts();
     const validationSchema = Yup.object({
     title: Yup.string()

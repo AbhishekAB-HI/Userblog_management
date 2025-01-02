@@ -1,6 +1,5 @@
-import { fetchPosts } from "@/API/Userapi";
-import { IPost, PostsState } from "@/interfaces/Userinfo";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { IPost } from "../interfaces/Userinfo";
+import {  createSlice } from "@reduxjs/toolkit";
 
 type userstate = {
   userTocken: string;
