@@ -1,147 +1,78 @@
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import toast from "react-hot-toast";
-import {
-  setUserAccessTocken,
-  setUserRefreshtocken,
-} from "../../Reduxstore/Reduxslice";
+import InputField from "../../Reusablecomponents/FormLogin";
+import Button from "../../Reusablecomponents/Button";
+import useLogin from "../../Customhookslogic/Loginhook";
+import { Link } from "react-router-dom";
 
-const Loginpage: React.FC = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+const LoginPage: React.FC = () => {
+  const { handleLogin } = useLogin();
 
-  // Validation schema
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email("Invalid email format")
-      .required("Email is required"),
-    password: Yup.string().required("Password is required"),
-  });
+ const validationSchema = Yup.object({
+   email: Yup.string()
+     .email("Invalid email format")
+     .required("Email is required"),
+   password: Yup.string()
+     .min(8, "Password must be at least 8 characters long")
+     .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+     .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+     .matches(/[0-9]/, "Password must contain at least one number")
+     .matches(/[\W_]/, "Password must contain at least one special character")
+     .required("Password is required"),
+ });
 
-  // Formik setup
   const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
+    initialValues: { email: "", password: "" },
     validationSchema,
-    onSubmit: async (values) => {
-      try {
-        const { data } = await axios.post(
-          `https://userblog-management.onrender.com/api/user/login`,
-          {
-            email: values.email,
-            password: values.password,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (data.message === "User Logined Successful") {
-          toast.success("User Logined Successful");
-          dispatch(setUserAccessTocken(data.accessToc));
-          dispatch(setUserRefreshtocken(data.refreshToc));
-          navigate("/dashboard");
-        }else{
-          toast.error("Login failed")
-        }
-      } catch (error) {
-   if (axios.isAxiosError(error)) {
-     const errorMessage = error.response?.data?.message || "An error occurred";
-     toast.error(errorMessage);
-   } else {
-     toast.error("Unknown error occurred");
-   }
-   console.error("Login error:", error);
-      }
+    onSubmit: (values) => {
+      handleLogin(values.email, values.password);
     },
   });
 
   return (
-    <div className="flex items-center justify-center  min-h-screen ">
+    <div className="flex items-center justify-center min-h-screen">
       <div className="w-full max-w-sm">
         <form
           onSubmit={formik.handleSubmit}
           className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         >
-          <div className="mb-4">
-            <h1 className="block text-gray-700 text-lg font-bold mb-5">
-              LOGIN
-            </h1>
-            <label
-              className="block text-left text-gray-700 text-sm font-bold mb-2"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <input
-              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
-                formik.touched.email && formik.errors.email
-                  ? "border-red-500"
-                  : ""
-              }`}
-              id="email"
-              type="email"
-              {...formik.getFieldProps("email")}
-              placeholder="Enter your email"
-            />
-            {formik.touched.email && formik.errors.email && (
-              <p className="text-red-500 text-xs italic">
-                {formik.errors.email}
-              </p>
-            )}
-          </div>
-          <div className="mb-6">
-            <label
-              className="block text-left text-gray-700 text-sm font-bold mb-2"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <input
-              className={`shadow appearance-none border  rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${
-                formik.touched.password && formik.errors.password
-                  ? "border-red-500"
-                  : ""
-              }`}
-              id="password"
-              type="password"
-              {...formik.getFieldProps("password")}
-              placeholder="******************"
-            />
-            {formik.touched.password && formik.errors.password && (
-              <p className="text-red-500 text-xs italic">
-                {formik.errors.password}
-              </p>
-            )}
-          </div>
+          <h1 className="block text-gray-700 text-lg font-bold mb-5">LOGIN</h1>
+          <InputField
+            id="email"
+            label="Email"
+            type="email"
+            placeholder="Enter your email"
+            value={formik.values.email}
+            error={formik.errors.email}
+            touched={formik.touched.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          <InputField
+            id="password"
+            label="Password"
+            type="password"
+            placeholder="Enter your password"
+            value={formik.values.password}
+            error={formik.errors.password}
+            touched={formik.touched.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
           <div className="flex items-center justify-center">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 mb-2 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
-              LOG IN
-            </button>
+            <Button type="submit" label="LOG IN" />
           </div>
-          <label className="text-center text-gray-500 text-xs" htmlFor="">
-            Create an account ?
-          </label>
-          <Link
-            className="inline-block align-baseline font-bold text-sm ml-1 text-blue-500 hover:text-blue-800"
-            to="/register"
-          >
-            Sign Up
-          </Link>
+          <p className="text-center text-gray-500 text-xs">
+            Create an account?{" "}
+            <Link className="text-blue-500 hover:text-blue-800" to="/register">
+              Sign Up
+            </Link>
+          </p>
         </form>
       </div>
     </div>
   );
 };
 
-export default Loginpage;
+export default LoginPage;

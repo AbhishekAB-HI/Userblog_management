@@ -1,48 +1,62 @@
 import { ObjectId } from "mongoose";
 import cloudinary from "../Config/Cloudinary.ts";
-import UserRepository from "../Repository/Userrepository.ts";
-import { Tockens, userPayload } from "../Types/Usertoc.ts";
+import { Tocken, userPayload } from "../Types/Usertoc.ts";
 import HashPassword from "../Utils/Hashpassword.ts";
 import { generateAccessToken, generateRefreshToken } from "../Utils/Jwt.ts";
 import { IPost } from "../Entities/Userentities.ts";
 import { Irepository } from "../interface/user/userRepository.ts";
+import { IuserServices } from "../interface/user/userServices.ts";
 
-class UserServices {
-  constructor(private userRepository: Irepository) {}
+class UserServices implements IuserServices{
+  constructor(private userRepository: Irepository) {
+    this.userRepository =userRepository
+  }
 
   async verifyLoging(
     email: string,
     password: string
-  ): Promise<Tockens | undefined> {
-    const verifytheEmail = await this.userRepository.verifyEmail(email);
-    const userinfo = await this.userRepository.findtheEmail(email, password);
-    if (!userinfo?.password) {
-      throw new Error("Invalid credentials");
-    }
-    const hashedpassword = await HashPassword.comparePassword(
-      password,
-      userinfo?.password
-    );
+  ): Promise<Tocken | undefined> {
 
-    if (!hashedpassword) {
-      throw new Error("Wrong password");
-    }
+      try {
+         const verifytheEmail = await this.userRepository.verifyEmail(email);
+         const userinfo = await this.userRepository.findtheEmail(
+           email,
+           password
+         );
+         if (!userinfo?.password) {
+           throw new Error("Invalid credentials");
+         }
+         const hashedpassword = await HashPassword.comparePassword(
+           password,
+           userinfo?.password
+         );
 
-    const userPayload: userPayload = {
-      id: userinfo._id as ObjectId,
-    };
+         if (!hashedpassword) {
+           throw new Error("Wrong password");
+         }
 
-    const accesstocken = generateAccessToken(userPayload);
-    const refreshtocken = generateRefreshToken(userPayload);
+         const userPayload: userPayload = {
+           id: userinfo._id as ObjectId,
+         };
 
-    return { accesstocken, refreshtocken };
+         const accesstocken = generateAccessToken(userPayload);
+         const refreshtocken = generateRefreshToken(userPayload);
+
+         return { accesstocken, refreshtocken };
+        
+      } catch (error) {
+
+       
+          throw new Error("Wrong password");
+      }
+   
   }
 
   async gettheIddetail(postId: string | any): Promise<void> {
     try {
       await this.userRepository.findIdAndDelete(postId);
     } catch (error) {
-      console.log(error);
+      throw new Error("An Error occured while delete the post")
     }
   }
 
@@ -51,7 +65,7 @@ class UserServices {
       const recieveallpost = await this.userRepository.findAllThePost();
       return recieveallpost;
     } catch (error) {
-      console.log(error);
+      throw new Error("An Error occured during Featch data");
     }
   }
 
@@ -78,7 +92,7 @@ class UserServices {
         saveID
       );
     } catch (error) {
-      console.log(error);
+      throw new Error("An Error occured during edit post");
     }
   }
 
@@ -105,7 +119,9 @@ class UserServices {
       } else {
         console.error("Profile image is missing");
       }
-    } catch (error) {}
+    } catch (error) {
+       throw new Error("An Error occured during upload post");
+    }
   }
 
   async VerifyRegister(
@@ -136,7 +152,7 @@ class UserServices {
         cloudinaryImageUrl
       );
     } catch (error) {
-      console.log(error);
+        throw new Error("An Error occured during Register");
     }
   }
 }

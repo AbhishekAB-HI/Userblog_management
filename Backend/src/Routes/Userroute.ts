@@ -7,7 +7,6 @@ import path from "path"
 import AuthenticationMiddleware from "../Middleware/UserAuthMiddleware.ts";
 import { fileURLToPath } from "url";
 
-// Define __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -18,8 +17,7 @@ const router = Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // cb(null, "../../BW-1 TASK USER-BLOG-MANAGEMENT/Backend/src/uploads"); 
-       const uploadDir = path.join(__dirname, "..", "uploads"); // Use absolute path
+       const uploadDir = path.join(__dirname, "..", "uploads"); 
        cb(null, uploadDir);
   
   },
@@ -36,7 +34,7 @@ const upload = multer({ storage });
 router.post("/register",upload.single("profileImage"),userController.userRegister.bind(userController));
 router.post("/login",userController.userLogin.bind(userController));
 router.post("/refreshtoken",userController.refreshTocken.bind(userController));
-router.post("/addpost",AuthenticationMiddleware,upload.single("productimage"),userController.AddPost.bind(userController));
+router.post("/addpost",AuthenticationMiddleware,upload.single("productuploadimage"),userController.AddPost.bind(userController));
 router.get("/getpost",AuthenticationMiddleware, userController.findAllPost.bind(userController));
 router.delete("/deletepost",AuthenticationMiddleware, userController.findAndDeletepost.bind(userController));
 router.post("/editpost",AuthenticationMiddleware,upload.single("productimage"),userController.findpostandedit.bind(userController));

@@ -15,6 +15,7 @@ function App() {
       {/* <Registration/> */}
       <Router>
         <Toaster position="top-center" />
+
         <Routes>
           <Route
             path="/"

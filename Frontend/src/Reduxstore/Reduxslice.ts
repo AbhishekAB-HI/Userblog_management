@@ -1,14 +1,18 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { fetchPosts } from "@/API/Userapi";
+import { IPost, PostsState } from "@/interfaces/Userinfo";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 type userstate = {
   userTocken: string;
   userRefreshTocken: string;
+  savePosts:IPost[]
 };
 
 
 const stateinfo: userstate = {
   userTocken: localStorage.getItem("usertocken") || "",
   userRefreshTocken: localStorage.getItem("userRefreshTocken") || "",
+  savePosts:[]
 };
 
 
@@ -31,13 +35,21 @@ const stateinfo: userstate = {
        state.userRefreshTocken = "";
        localStorage.removeItem("usertocken");
      },
+     setSaveposts:(state,action)=>{
+      const posts =action.payload
+      state.savePosts = posts;
+     }
    },
  });
 
 
 
-   export const { setUserAccessTocken, setUserRefreshtocken, clearuserAccessTocken } =
-     userTockeninfo.actions;
+   export const {
+     setUserAccessTocken,
+     setUserRefreshtocken,
+     clearuserAccessTocken,
+     setSaveposts,
+   } = userTockeninfo.actions;
 
   export const userTockenStatus = userTockeninfo.reducer
 

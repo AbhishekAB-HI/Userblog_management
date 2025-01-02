@@ -1,12 +1,9 @@
-import { ObjectId } from "mongoose";
 import userBlogSchema from "../Models/Userblogschema.ts";
-import { Tockens, userPayload } from "../Types/Usertoc.ts";
-import HashPassword from "../Utils/Hashpassword.ts";
-import { generateAccessToken, generateRefreshToken } from "../Utils/Jwt.ts";
 import { IPost, IUser } from "../Entities/Userentities.ts";
 import postSchemaDetail from "../Models/PostSchema.ts";
+import { Irepository } from "../interface/user/userRepository.ts";
 
-class UserRepository {
+class UserRepository implements Irepository {
   async checkEmailExist(email: string): Promise<void> {
     try {
       const checkemail = await userBlogSchema.findOne({ email: email });
@@ -14,7 +11,7 @@ class UserRepository {
         throw new Error("Email is already exists");
       }
     } catch (error) {
-      console.log(error);
+     throw new Error("Cannot find Email");
     }
   }
   async EditpostandSave(
@@ -37,7 +34,7 @@ class UserRepository {
 
       console.log("Post updated successfully:", savepost);
     } catch (error) {
-      console.log("Error updating post:", error);
+      throw new Error("Cannot find post while editing");
     }
   }
 
@@ -55,7 +52,7 @@ class UserRepository {
 
       const savePost = await createNewPost.save();
     } catch (error) {
-      console.log(error);
+     throw new Error("Cannot find post while saving");
     }
   }
 
@@ -63,7 +60,7 @@ class UserRepository {
     try {
       const getinfo = await postSchemaDetail.findByIdAndDelete(postId);
     } catch (error) {
-      console.log(error);
+       throw new Error("Cannot find post while delete");
     }
   }
 
@@ -72,7 +69,7 @@ class UserRepository {
       const AllPost = await postSchemaDetail.find();
       return AllPost;
     } catch (error) {
-      console.log(error);
+        throw new Error("Cannot find posts");
     }
   }
 
@@ -82,10 +79,9 @@ class UserRepository {
   ): Promise<IUser | null | undefined> {
     try {
       const userinfo = await userBlogSchema.findOne({ email: email });
-
       return userinfo;
     } catch (error) {
-      console.log(error);
+     throw new Error("Cannot find post");
     }
   }
 
@@ -97,7 +93,7 @@ class UserRepository {
         throw new Error("No user found");
       }
     } catch (error) {
-      console.log(error);
+         throw new Error("Cannot find post");
     }
   }
 
@@ -113,7 +109,7 @@ class UserRepository {
 
       console.log(savePassoword, "password data");
     } catch (error) {
-      console.log(error);
+        throw new Error("Cannot find user while saving");
     }
   }
 }

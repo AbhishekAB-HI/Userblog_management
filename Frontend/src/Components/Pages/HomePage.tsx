@@ -1,4 +1,3 @@
-import axiosInterseptor from "../../Services/Axiosinterceptor";
 import { clearuserAccessTocken } from "../../Reduxstore/Reduxslice";
 import {
   UserPlus,
@@ -8,45 +7,36 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { IPost } from "../../interfaces/Userinfo";
-import {  useFormik } from "formik";
-import * as Yup from "yup";
-import Swal from "sweetalert2";
+import { ExpandedPosts } from "../../interfaces/Userinfo";
+import { usePosts } from "../../Customhookslogic/Posthook";
+import { Postadding } from "../../Customhookslogic/Addpost";
+import { postEditing } from "../../Customhookslogic/Editpost";
+import { handleDelete } from "../../Customhookslogic/DeletePost";
+import {store} from "../../Reduxstore/Reduxstore"
 
 const UserManagementDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [savePost, setSavePost] = useState<IPost[]>([]);
   const [saveID, setSaveid] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
- const [Loading, setLoading] = useState(false)
-
- interface ExpandedPosts {
-   [key: string]: boolean;
- }
-
- const [expandedPosts, setExpandedPosts] = useState<ExpandedPosts>({});
-
-  // Toggle description expansion for a specific post
-  const toggleDescription = (postId:any) => {
-    setExpandedPosts((prev:any) => ({
+  const [expandedPosts, setExpandedPosts] = useState<ExpandedPosts>({});
+  const {  fetchAllPosts } = usePosts();
+  const { Loading1, formik1, isOpen, setIsOpen } = Postadding();
+  const { formik, Loading, isEditOpen, setIsEditOpen } = postEditing(saveID);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  type RootState = ReturnType<typeof store.getState>;
+  const getpost= useSelector((state:RootState)=>state.accessStore.savePosts)
+  useEffect(() => {
+    fetchAllPosts();
+  }, []);
+  const toggleDescription = (postId: any) => {
+    setExpandedPosts((prev: any) => ({
       ...prev,
       [postId]: !prev[postId],
     }));
   };
-
-
-  useEffect(() => {
-    findAllPost();
-  }, []);
-
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const handleToggleDropdown = () => {
     setIsDropdownVisible((prev) => !prev);
@@ -61,148 +51,6 @@ const UserManagementDashboard = () => {
     }
   };
 
-  const validationSchema = Yup.object({
-    title: Yup.string()
-      .required("Title is required")
-      .min(3, "Title must be at least 3 characters long"),
-    description: Yup.string()
-      .required("Description is required")
-      .min(10, "Description must be at least 10 characters long"),
-  });
-
-  const formik = useFormik({
-    initialValues: {
-      title: "",
-      description: "",
-      productimage: null,
-    },
-    validationSchema,
-    onSubmit: async (values) => {
-      try {
-        setLoading(true)
-        const formData = new FormData();
-        formData.append("title", values.title);
-        formData.append("saveID", saveID);
-        formData.append("description", values.description);
-        if (file) {
-          formData.append("productimage", file);
-        }
-
-        const { data } = await axiosInterseptor.post(
-          "https://userblog-management.onrender.com/api/user/editpost",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        if (data.message === "Post edited successful") {
-          toast.success("Post edited successful");
-          findAllPost();
-          setIsEditOpen(!isEditOpen);
-        }
-      } catch (error) {
-        console.error(error);
-      }finally{
-         setLoading(false);
-      }
-    },
-  });
-
-  const findAllPost = async () => {
-    try {
-      const { data } = await axiosInterseptor.get(
-        "https://userblog-management.onrender.com/api/user/getpost"
-      );
-
-      if (data.message === "All post found") {
-        setSavePost(data.Allpostrecived);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-
-
-  const formik1 = useFormik({
-    initialValues: {
-      title: "",
-      description: "",
-      productimage: null,
-    },
-    validationSchema,
-    onSubmit: async (values) => {
-      try {
-         setLoading(true);
-        const formData = new FormData();
-        formData.append("title", values.title);
-        formData.append("description", values.description);
-        if (file) {
-          formData.append("productimage", file);
-        }
-
-        const { data } = await axiosInterseptor.post(
-          "https://userblog-management.onrender.com/api/user/addpost",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        if (data.message === "Upload the file") {
-          toast.success("File upload successful");
-          findAllPost();
-          setIsOpen(!isOpen);
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error("File upload failed");
-      }finally{
-          setLoading(false);
-      }
-    },
-  });
-
-
-const handleDelete = async (userId: string) => {
-  // Show confirmation dialog
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "This action cannot be undone.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, delete it!",
-    cancelButtonText: "No, cancel!",
-  });
-
-  // If confirmed, proceed with the delete action
-  if (result.isConfirmed) {
-    console.log("Delete user:", userId);
-    try {
-      const { data } = await axiosInterseptor.delete(
-        `https://userblog-management.onrender.com/api/user/deletepost?id=${userId}`
-      );
-
-      if (data.message === "Post deleted successful") {
-        Swal.fire("Deleted!", "Your post has been deleted.", "success");
-        findAllPost(); // Refresh the list of posts
-      }
-    } catch (error) {
-      // Handle error (e.g., show an error message)
-      Swal.fire("Error!", "Something went wrong. Please try again.", "error");
-    }
-  } else {
-    // If cancelled
-    Swal.fire("Cancelled", "The post was not deleted.", "info");
-  }
-};
-
-
   const toggleModal = () => {
     setIsOpen(!isOpen);
   };
@@ -212,13 +60,12 @@ const handleDelete = async (userId: string) => {
     setIsEditOpen(!isEditOpen);
   };
 
-  const filteredPosts = savePost.filter((post) => {
+  const filteredPosts = getpost.filter((post) => {
     return (
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -393,14 +240,13 @@ const handleDelete = async (userId: string) => {
                             Upload File
                             <input
                               id="file-upload"
-                              name="productimage"
+                              name="productuploadimage"
                               required
                               type="file"
                               onChange={(e) => {
                                 if (e.target.files) {
-                                  setFile(e.target.files[0]);
                                   formik1.setFieldValue(
-                                    "file",
+                                    "productuploadimage",
                                     e.target.files[0]
                                   );
                                 }
@@ -426,7 +272,7 @@ const handleDelete = async (userId: string) => {
                             clipRule="evenodd"
                           />
                         </svg>
-                        {Loading ? "Loading..." : " Add new product"}
+                        {Loading1 ? "Loading..." : " Add new product"}
                       </button>
                     </form>
                   </div>
@@ -546,7 +392,6 @@ const handleDelete = async (userId: string) => {
                               onChange={(e) => {
                                 if (e.target.files) {
                                   const file = e.target.files[0];
-                                  setFile(file);
                                   formik.setFieldValue("productimage", file);
                                 }
                               }}
@@ -638,7 +483,7 @@ const handleDelete = async (userId: string) => {
                           <Edit size={18} />
                         </button>
                         <button
-                          onClick={() => handleDelete(post._id)}
+                          onClick={() => handleDelete(post._id, fetchAllPosts)}
                           className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200"
                           title="Delete post"
                         >

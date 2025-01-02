@@ -1,10 +1,15 @@
-import UserServices from "../Services/Userservices.ts";
-import { NextFunction, Request, Response } from "express";
+import { HttpStatusCode } from "../Constants and Enum/HttpStatusCode.ts"; 
+import { ResponseMessages } from "../Constants and Enum/Messages.ts"; 
+import { IuserServices } from "../interface/user/userServices.ts";
+import { IUserController } from "../interface/user/userController.ts";
+import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { generateRefreshToken } from "../Utils/Jwt.ts";
-import { IuserServices } from "../interface/user/userServices.ts";
-class Usercontroller {
-  constructor(private userServices: IuserServices) {}
+class Usercontroller implements IUserController {
+  constructor(private userServices: IuserServices) {
+    this.userServices = userServices;
+  }
+
   async userRegister(req: Request, res: Response): Promise<void> {
     try {
       const { name, email, password } = req.body;
@@ -15,40 +20,37 @@ class Usercontroller {
         password,
         profileImage
       );
-
-      res.status(200).json({ message: "User Saved Successfull" });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ message: ResponseMessages.USER_REGISTER_SUCCESS });
     } catch (error) {
-      console.log(error);
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: ResponseMessages.SOMETHING_WENT_WRONG });
     }
   }
 
   async AddPost(req: Request, res: Response) {
     try {
-     
       const { title, description } = req.body;
       const postimage = req.file?.path;
-
-      console.log(req.body,"2222222222222");
-      console.log(postimage, "2222222222222");
       const addingthepost = await this.userServices.SendPostinfo(
         title,
         description,
         postimage
       );
-  
-      res.status(200).json({ message: "Upload the file" });
+
+      res
+        .status(HttpStatusCode.OK)
+        .json({ message: ResponseMessages.ADD_POST_SUCCESS });
     } catch (error) {
-      console.log(error);
+      res
+        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+        .json({ message: ResponseMessages.SOMETHING_WENT_WRONG });
     }
   }
 
   async findpostandedit(req: Request, res: Response) {
     try {
       const { title, description, saveID } = req.body;
-
-      console.log(title, "title");
-      console.log(description, "description");
-
       const postimage = req.file?.path;
       const Allpostrecived = await this.userServices.getpostForEdit(
         title,
@@ -57,9 +59,13 @@ class Usercontroller {
         saveID
       );
 
-      res.status(200).json({ message: "Post edited successful" });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ message: ResponseMessages.POST_EDIT_SUCCESS });
     } catch (error) {
-      console.log(error);
+       res
+         .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+         .json({ message: ResponseMessages.SOMETHING_WENT_WRONG });
     }
   }
 
@@ -68,9 +74,13 @@ class Usercontroller {
       const Postid = req.query.id;
       await this.userServices.gettheIddetail(Postid);
 
-      res.status(200).json({ message: "Post deleted successful" });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ message: ResponseMessages.POST_DELETE_SUCCESS });
     } catch (error) {
-      console.log(error);
+      res
+        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+        .json({ message: ResponseMessages.SOMETHING_WENT_WRONG });
     }
   }
 
@@ -78,9 +88,13 @@ class Usercontroller {
     try {
       const Allpostrecived = await this.userServices.getAllthepost();
 
-      res.status(200).json({ message: "All post found", Allpostrecived });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ message: ResponseMessages.ALL_POSTS_FOUND, Allpostrecived });
     } catch (error) {
-      console.log(error);
+       res
+         .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+         .json({ message: ResponseMessages.SOMETHING_WENT_WRONG });
     }
   }
 
@@ -90,7 +104,9 @@ class Usercontroller {
       const { refreshToken } = req.body;
 
       if (!req.body || !req.body.refreshToken) {
-        res.status(401).json({ message: "Refresh Token required" });
+        res
+          .status(HttpStatusCode.UNAUTHORIZED)
+          .json({ message: ResponseMessages.REFRESH_TOKEN_REQUIRED });
       }
 
       jwt.verify(
@@ -99,8 +115,8 @@ class Usercontroller {
         (err: any, user: any) => {
           if (err) {
             return res
-              .status(403)
-              .json({ message: "Token expired or invalid" });
+              .status(HttpStatusCode.FORBIDDEN)
+              .json({ message: ResponseMessages.TOKEN_EXPIRED_OR_INVALID });
           }
 
           const newAccessToken = generateRefreshToken({ id: user.id });
@@ -108,7 +124,9 @@ class Usercontroller {
         }
       );
     } catch (error) {
-      console.log(error);
+    res
+      .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+      .json({ message: ResponseMessages.SOMETHING_WENT_WRONG });
     }
   }
 
@@ -124,18 +142,26 @@ class Usercontroller {
         const accessToc = userlogindata.accesstocken;
         const refreshToc = userlogindata.refreshtocken;
         res
-          .status(200)
-          .json({ message: "User Logined Successful", accessToc, refreshToc });
-          return;
+          .status(HttpStatusCode.OK)
+          .json({
+            message: ResponseMessages.USER_LOGIN_SUCCESS,
+            accessToc,
+            refreshToc,
+          });
+        return;
       }
     } catch (error) {
-       console.error(error); // Logs the error for debugging
-    if (error instanceof Error) {
-      res.status(400).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Something went wrong" });
-    }
+      console.error(error);
+      if (error instanceof Error) {
 
+        res
+          .status(HttpStatusCode.BAD_REQUEST)
+          .json({ message: ResponseMessages.WRONG_PASSWORD });
+      } else {
+        res
+          .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+          .json({ message: ResponseMessages.SOMETHING_WENT_WRONG });
+      }
     }
   }
 }

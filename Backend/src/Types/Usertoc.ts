@@ -9,7 +9,7 @@ export interface adminPayload {
 }
 
 
-export interface Tockens {
+export interface Tocken {
   accesstocken: string;
   refreshtocken: string;
 }
