@@ -76,7 +76,7 @@ const DetailPage = ({  }) => {
             <div className="flex items-center gap-4 mt-4 text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <Calendar size={16} />
-                {/* {new Date(samplePost.createdAt).toLocaleDateString()} */}
+                {new Date(posts?.createdAt).toLocaleDateString()}
               </div>
               <span>•</span>
               <span>•</span>
@@ -85,7 +85,9 @@ const DetailPage = ({  }) => {
 
           {/* Content */}
           <div className="border-t border-gray-100 pt-6">
-            <p className="text-gray-700 leading-relaxed">{posts?.description}</p>
+            <p className="text-gray-700 leading-relaxed">
+              {posts?.description}
+            </p>
           </div>
         </div>
       </div>

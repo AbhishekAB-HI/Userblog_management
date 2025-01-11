@@ -7,7 +7,11 @@ export interface Irepository {
   EditpostandSave( title: string, description: string, cloudinaryImageUrl: string, saveID: string): Promise<void>
   savePostinfo(title: string,description: string,cloudinaryImageUrl: string): Promise<void>
   findIdAndDelete(postId: string | undefined): Promise<void>
-  findAllThePost(search:string | any): Promise<IPost[] | undefined>
+  findAllThePost(
+    string: string,
+    limit: number,
+    page: number
+  ): Promise<{ posts: IPost[]; totalPages: number } | undefined> 
   findTheDetailPage(postId: string | undefined): Promise<IPost | null>
   findtheEmail(email: string,password: string): Promise<IUser | null | undefined>
   verifyEmail(email: string): Promise<void> 

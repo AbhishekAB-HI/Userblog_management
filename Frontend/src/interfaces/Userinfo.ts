@@ -1,8 +1,9 @@
-export interface  IPost extends Document {
-    _id:any
+export interface IPost extends Document {
+  _id: any;
   title: string;
   description: string;
   image: string;
+  createdAt:any
 }
 
 export interface ExpandedPosts {

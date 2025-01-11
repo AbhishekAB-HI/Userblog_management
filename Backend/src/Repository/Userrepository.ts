@@ -72,17 +72,39 @@ class UserRepository implements Irepository {
       throw new Error("Cannot find posts");
     }
   }
-
-  async findAllThePost(string: string): Promise<IPost[] | undefined> {
+  async findAllThePost(
+    string: string,
+    limit: number,
+    page: number
+  ): Promise<{ posts: IPost[]; totalPages: number } | undefined> {
     try {
-      const filterpost = await postSchemaDetail.find();
-      const AllPost = filterpost.filter((post) => {
-        return (
-          post.title.toLowerCase().includes(string.toLowerCase()) ||
-          post.description.toLowerCase().includes(string.toLowerCase())
-        );
+      // Calculate the skip value based on the current page and limit
+      const skip = (page - 1) * limit;
+
+      // Count total posts matching the search query
+      const totalPosts = await postSchemaDetail.countDocuments({
+        $or: [
+          { title: { $regex: string, $options: "i" } },
+          { description: { $regex: string, $options: "i" } },
+        ],
       });
-      return AllPost;
+
+      // Fetch the posts with pagination and sorting by createdAt in descending order
+      const posts = await postSchemaDetail
+        .find({
+          $or: [
+            { title: { $regex: string, $options: "i" } },
+            { description: { $regex: string, $options: "i" } },
+          ],
+        })
+        .skip(skip) // Skip posts based on pagination
+        .limit(limit) // Limit the number of posts returned
+        .sort({ createdAt: -1 }); // Sort by createdAt in descending order (latest first)
+
+      // Calculate total pages
+      const totalPages = Math.ceil(totalPosts / limit);
+
+      return { posts, totalPages };
     } catch (error) {
       throw new Error("Cannot find posts");
     }

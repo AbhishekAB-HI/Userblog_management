@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { IPost } from "../Entities/Userentities";
+import { timeStamp } from "console";
 
 const postSchema :Schema = new Schema({
 
@@ -14,9 +15,12 @@ const postSchema :Schema = new Schema({
     image:{
         type:String,
         required:true
-    }
+    },
+   
     
-})
+}, {
+    timestamps: true,
+  })
 
  const postSchemaDetail = mongoose.model<IPost>("Post", postSchema);
 

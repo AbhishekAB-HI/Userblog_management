@@ -11,9 +11,9 @@ export const loginUser = async (email: string, password: string) => {
   return axiosInterseptor.post(API_ENDPOINTS.LOG_IN, { email, password });
 };
 
-export const fetchPosts = async (search:string) => {
+export const fetchPosts = async (search: string, page: number, limit: number) => {
   return await axiosInterseptor.get(
-    `${API_ENDPOINTS.GET_POST}?search=${search}`
+    `${API_ENDPOINTS.GET_POST}?search=${search}&page=${page}&limit=${limit}`
   );
 };
 

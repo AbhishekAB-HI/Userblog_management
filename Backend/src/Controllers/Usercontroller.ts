@@ -100,12 +100,21 @@ class Usercontroller implements IUserController {
 
   async findAllPost(req: Request, res: Response) {
     try {
-      const { search } = req.query;
-      const Allpostrecived = await this.userServices.getAllthepost(search);
+      const { search, limit, page } = req.query;
+      const Allpostrecived = await this.userServices.getAllthepost(search,limit,page);
 
-      res
-        .status(HttpStatusCode.OK)
-        .json({ message: ResponseMessages.ALL_POSTS_FOUND, Allpostrecived });
+      if (!Allpostrecived){
+        throw new Error("No posts found");
+      }
+      
+      const { posts, totalPages } = Allpostrecived;
+        res
+          .status(HttpStatusCode.OK)
+          .json({
+            message: ResponseMessages.ALL_POSTS_FOUND,
+            posts,
+            totalPages,
+          });
     } catch (error) {
       res
         .status(HttpStatusCode.INTERNAL_SERVER_ERROR)

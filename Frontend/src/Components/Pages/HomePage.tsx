@@ -16,23 +16,39 @@ const UserManagementDashboard = () => {
   const [saveID, setSaveid] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedPosts, setExpandedPosts] = useState<ExpandedPosts>({});
-  const { fetchAllPosts  } = usePosts(searchQuery);
+
   const { Loading1, formik1, isOpen, setIsOpen } = Postadding();
   const { formik, Loading, isEditOpen, setIsEditOpen } = postEditing(saveID);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   type RootState = ReturnType<typeof store.getState>;
- 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(6);
+  const { fetchAllPosts, totalPages } = usePosts(searchQuery);
+
+  useEffect(() => {
+    fetchAllPosts(currentPage, postsPerPage);
+  }, [searchQuery, currentPage]);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+
+
+  useEffect(() => {
+    try {
+      fetchAllPosts();
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  }, [searchQuery]);
+
+
   
-useEffect(() => {
-  try {
-    fetchAllPosts();
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-  }
-}, [searchQuery]);
 
- const getpost = useSelector((state: RootState) => state.accessStore.savePosts);
-
+  const getpost = useSelector(
+    (state: RootState) => state.accessStore.savePosts
+  );
 
   const toggleDescription = (postId: any) => {
     setExpandedPosts((prev: any) => ({
@@ -56,9 +72,8 @@ useEffect(() => {
 
   const handleViewPage = (postid: string) => {
     try {
-     console.log(postid, "postid");
-     navigate(`/viewpage/${postid}`);
-    
+      console.log(postid, "postid");
+      navigate(`/viewpage/${postid}`);
     } catch (error) {
       console.log(error);
     }
@@ -79,9 +94,7 @@ useEffect(() => {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">
-              User Blog Management
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">Blog folio</h1>
             <div className="relative">
               <div
                 className="flex items-center space-x-2 cursor-pointer"
@@ -248,7 +261,6 @@ useEffect(() => {
                             <input
                               id="file-upload"
                               name="productuploadimage"
-                              required
                               type="file"
                               onChange={(e) => {
                                 if (e.target.files) {
@@ -262,7 +274,14 @@ useEffect(() => {
                             />
                           </label>
                         </div>
+                        {formik1.errors.productuploadimage &&
+                          formik1.touched.productuploadimage && (
+                            <div className="text-red-500 text-sm">
+                              {formik1.errors.productuploadimage}
+                            </div>
+                          )}
                       </div>
+
                       <button
                         type="submit"
                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
@@ -430,15 +449,17 @@ useEffect(() => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {getpost?.map((post, index) => (
                 <div
-                  onClick={(event) => {
-                    event.preventDefault();
-                    handleViewPage(post._id);
-                  }}
                   key={index}
                   className="bg-white border-black rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
                 >
                   {/* Image Container */}
-                  <div className="relative h-48 overflow-hidden">
+                  <div
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handleViewPage(post._id);
+                    }}
+                    className="relative h-48 overflow-hidden"
+                  >
                     <img
                       src={post.image}
                       alt={post.title}
@@ -507,6 +528,25 @@ useEffect(() => {
               ))}
             </div>
           </div>
+        </div>
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 mx-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2 mx-1">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 mx-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
       </main>
     </div>

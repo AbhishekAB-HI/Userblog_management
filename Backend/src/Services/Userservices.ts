@@ -52,18 +52,38 @@ class UserServices implements IuserServices {
     }
   }
 
-  async getAllthepost(search: string): Promise<IPost[] | undefined> {
+  async getAllthepost(
+    search: string,
+    limit: number,
+    page: number
+  ): Promise<{ posts: IPost[]; totalPages: number } | undefined> {
     try {
-      const recieveallpost = await this.userRepository.findAllThePost(search);
-      return recieveallpost;
+      const recieveallpost = await this.userRepository.findAllThePost(
+        search,
+        limit,
+        page
+      );
+
+      // If no posts are found or the result is undefined
+      if (!recieveallpost) {
+        throw new Error("No posts found");
+      }
+
+      const { posts, totalPages } = recieveallpost;
+
+      // Return the posts and totalPages
+      return { posts, totalPages };
     } catch (error) {
-      throw new Error("An Error occured during Featch data");
+      console.error("Error during fetching data:", error);
+      throw new Error("An error occurred while fetching data");
     }
   }
 
-  async viewDetailPage(postid: string | undefined):Promise<IPost | null> {
+  async viewDetailPage(postid: string | undefined): Promise<IPost | null> {
     try {
-      const recieveallpost = await this.userRepository.findTheDetailPage(postid);
+      const recieveallpost = await this.userRepository.findTheDetailPage(
+        postid
+      );
       return recieveallpost;
     } catch (error) {
       throw new Error("An Error occured during Featch data");
