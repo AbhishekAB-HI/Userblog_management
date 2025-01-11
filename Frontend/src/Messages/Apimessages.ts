@@ -13,10 +13,11 @@ export const API_MESSAGES = {
 };
 
 export const API_ENDPOINTS = {
-  REGISTER:"api/user/register",
-  LOG_IN:"api/user/login",
+  REGISTER: "api/user/register",
+  LOG_IN: "api/user/login",
   EDIT_POST: "/api/user/editpost",
   GET_POST: "/api/user/getpost",
+  VIEW_PAGE: "/api/user/viewpage",
   ADD_POST: "/api/user/addpost",
   DELETE_POST: "/api/user/deletepost",
 };

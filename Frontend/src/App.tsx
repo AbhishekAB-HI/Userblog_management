@@ -7,12 +7,12 @@ import { Toaster } from "react-hot-toast";
 import UserManagementDashboard from './Components/Pages/HomePage';
 import UserLogoutPrivateRoute from './ProtectiveRoute/Logoutroute';
 import UserPrivateRoute from './ProtectiveRoute/Loginroute';
+import DetailPage from './Components/Pages/Detailpage';
 function App() {
 
 
   return (
     <>
-      {/* <Registration/> */}
       <Router>
         <Toaster position="top-center" />
 
@@ -32,6 +32,10 @@ function App() {
           <Route
             path="/dashboard"
             element={<UserPrivateRoute element={<UserManagementDashboard />} />}
+          />
+          <Route
+            path="/viewpage/:postid"
+            element={<UserPrivateRoute element={<DetailPage />} />}
           />
         </Routes>
       </Router>

@@ -11,7 +11,7 @@ class UserRepository implements Irepository {
         throw new Error("Email is already exists");
       }
     } catch (error) {
-     throw new Error("Cannot find Email");
+      throw new Error("Cannot find Email");
     }
   }
   async EditpostandSave(
@@ -52,7 +52,7 @@ class UserRepository implements Irepository {
 
       const savePost = await createNewPost.save();
     } catch (error) {
-     throw new Error("Cannot find post while saving");
+      throw new Error("Cannot find post while saving");
     }
   }
 
@@ -60,16 +60,31 @@ class UserRepository implements Irepository {
     try {
       const getinfo = await postSchemaDetail.findByIdAndDelete(postId);
     } catch (error) {
-       throw new Error("Cannot find post while delete");
+      throw new Error("Cannot find post while delete");
     }
   }
 
-  async findAllThePost(): Promise<IPost[] | undefined> {
+  async findTheDetailPage(postId: string): Promise<IPost | null> {
     try {
-      const AllPost = await postSchemaDetail.find();
+      const filterpost = await postSchemaDetail.findById(postId);
+      return filterpost;
+    } catch (error) {
+      throw new Error("Cannot find posts");
+    }
+  }
+
+  async findAllThePost(string: string): Promise<IPost[] | undefined> {
+    try {
+      const filterpost = await postSchemaDetail.find();
+      const AllPost = filterpost.filter((post) => {
+        return (
+          post.title.toLowerCase().includes(string.toLowerCase()) ||
+          post.description.toLowerCase().includes(string.toLowerCase())
+        );
+      });
       return AllPost;
     } catch (error) {
-        throw new Error("Cannot find posts");
+      throw new Error("Cannot find posts");
     }
   }
 
@@ -81,7 +96,7 @@ class UserRepository implements Irepository {
       const userinfo = await userBlogSchema.findOne({ email: email });
       return userinfo;
     } catch (error) {
-     throw new Error("Cannot find post");
+      throw new Error("Cannot find post");
     }
   }
 
@@ -93,11 +108,16 @@ class UserRepository implements Irepository {
         throw new Error("No user found");
       }
     } catch (error) {
-         throw new Error("Cannot find post");
+      throw new Error("Cannot find post");
     }
   }
 
-  async savetheuser(name: string,email: string,password: string,image: string): Promise<void> {
+  async savetheuser(
+    name: string,
+    email: string,
+    password: string,
+    image: string
+  ): Promise<void> {
     try {
       const saveThedata = new userBlogSchema({
         name: name,
@@ -109,7 +129,7 @@ class UserRepository implements Irepository {
 
       console.log(savePassoword, "password data");
     } catch (error) {
-        throw new Error("Cannot find user while saving");
+      throw new Error("Cannot find user while saving");
     }
   }
 }

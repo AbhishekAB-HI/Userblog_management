@@ -5,13 +5,12 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setSaveposts } from "../Reduxstore/Reduxslice";
 
-export const usePosts = () => {
+export const usePosts = (search:string  ) => {
   const [posts, setPosts] = useState<IPost[]>([]);
   const dispatch = useDispatch()
   const fetchAllPosts = async () => {
   try {
-    toast.success("Fetching posts...");
-    const { data } = await fetchPosts();
+    const { data } = await fetchPosts(search);
     dispatch(setSaveposts(data.Allpostrecived));
   } catch (error) {
     console.error("Error fetching posts:", error);

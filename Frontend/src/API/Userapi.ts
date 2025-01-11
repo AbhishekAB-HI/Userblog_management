@@ -11,8 +11,16 @@ export const loginUser = async (email: string, password: string) => {
   return axiosInterseptor.post(API_ENDPOINTS.LOG_IN, { email, password });
 };
 
-export const fetchPosts = async () => {
-  return await axiosInterseptor.get(API_ENDPOINTS.GET_POST);
+export const fetchPosts = async (search:string) => {
+  return await axiosInterseptor.get(
+    `${API_ENDPOINTS.GET_POST}?search=${search}`
+  );
+};
+
+export const fetchOnePost = async (postid:string|undefined) => {
+  return await axiosInterseptor.get(
+    `${API_ENDPOINTS.VIEW_PAGE}?postid=${postid}`
+  );
 };
 
 export const addPost = async (formData: FormData) => {

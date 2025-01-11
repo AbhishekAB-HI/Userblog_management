@@ -4,14 +4,30 @@ import {  createSlice } from "@reduxjs/toolkit";
 type userstate = {
   userTocken: string;
   userRefreshTocken: string;
-  savePosts:IPost[]
+  savePosts:IPost[] 
+  savePost:IPost | null
 };
+
+let initialPosts: IPost[] = [];
+const savedPosts = localStorage.getItem("saveposts");
+
+if (savedPosts) {
+  try {
+    
+    initialPosts = JSON.parse(savedPosts);
+  } catch (error) {
+    console.error("Failed to parse saveposts:", error);
+    localStorage.removeItem("saveposts"); // Clear invalid data
+  }
+}
+
 
 
 const stateinfo: userstate = {
   userTocken: localStorage.getItem("usertocken") || "",
   userRefreshTocken: localStorage.getItem("userRefreshTocken") || "",
-  savePosts:[]
+  savePosts: initialPosts,
+  savePost: null,
 };
 
 
@@ -34,10 +50,14 @@ const stateinfo: userstate = {
        state.userRefreshTocken = "";
        localStorage.removeItem("usertocken");
      },
-     setSaveposts:(state,action)=>{
-      const posts =action.payload
-      state.savePosts = posts;
-     }
+     setSaveposts: (state, action) => {
+       state.savePosts = [...action.payload];
+       localStorage.setItem("saveposts", JSON.stringify(action.payload));
+     },
+     setSavepost: (state, action) => {
+       const posts = action.payload;
+       state.savePosts = posts;
+     },
    },
  });
 
@@ -48,6 +68,7 @@ const stateinfo: userstate = {
      setUserRefreshtocken,
      clearuserAccessTocken,
      setSaveposts,
+     setSavepost
    } = userTockeninfo.actions;
 
   export const userTockenStatus = userTockeninfo.reducer

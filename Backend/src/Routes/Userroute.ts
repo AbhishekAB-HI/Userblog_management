@@ -34,6 +34,7 @@ const upload = multer({ storage });
 router.post("/register",upload.single("profileImage"),userController.userRegister.bind(userController));
 router.post("/login",userController.userLogin.bind(userController));
 router.post("/refreshtoken",userController.refreshTocken.bind(userController));
+router.get("/viewpage", userController.detailPage.bind(userController));
 router.post("/addpost",AuthenticationMiddleware,upload.single("productuploadimage"),userController.AddPost.bind(userController));
 router.get("/getpost",AuthenticationMiddleware, userController.findAllPost.bind(userController));
 router.delete("/deletepost",AuthenticationMiddleware, userController.findAndDeletepost.bind(userController));

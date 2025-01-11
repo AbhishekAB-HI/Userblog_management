@@ -1,11 +1,5 @@
 import { clearuserAccessTocken } from "../../Reduxstore/Reduxslice";
-import {
-  UserPlus,
-  ChevronDown,
-  Edit,
-  Trash2,
-  ChevronUp,
-} from "lucide-react";
+import { UserPlus, ChevronDown, Edit, Trash2, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +8,7 @@ import { usePosts } from "../../Customhookslogic/Posthook";
 import { Postadding } from "../../Customhookslogic/Addpost";
 import { postEditing } from "../../Customhookslogic/Editpost";
 import { handleDelete } from "../../Customhookslogic/DeletePost";
-import {store} from "../../Reduxstore/Reduxstore"
+import { store } from "../../Reduxstore/Reduxstore";
 
 const UserManagementDashboard = () => {
   const navigate = useNavigate();
@@ -22,15 +16,24 @@ const UserManagementDashboard = () => {
   const [saveID, setSaveid] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedPosts, setExpandedPosts] = useState<ExpandedPosts>({});
-  const {  fetchAllPosts } = usePosts();
+  const { fetchAllPosts  } = usePosts(searchQuery);
   const { Loading1, formik1, isOpen, setIsOpen } = Postadding();
   const { formik, Loading, isEditOpen, setIsEditOpen } = postEditing(saveID);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   type RootState = ReturnType<typeof store.getState>;
-  const getpost= useSelector((state:RootState)=>state.accessStore.savePosts)
-  useEffect(() => {
+ 
+  
+useEffect(() => {
+  try {
     fetchAllPosts();
-  }, []);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+  }
+}, [searchQuery]);
+
+ const getpost = useSelector((state: RootState) => state.accessStore.savePosts);
+
+
   const toggleDescription = (postId: any) => {
     setExpandedPosts((prev: any) => ({
       ...prev,
@@ -51,6 +54,16 @@ const UserManagementDashboard = () => {
     }
   };
 
+  const handleViewPage = (postid: string) => {
+    try {
+     console.log(postid, "postid");
+     navigate(`/viewpage/${postid}`);
+    
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const toggleModal = () => {
     setIsOpen(!isOpen);
   };
@@ -60,12 +73,6 @@ const UserManagementDashboard = () => {
     setIsEditOpen(!isEditOpen);
   };
 
-  const filteredPosts = getpost.filter((post) => {
-    return (
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -421,8 +428,12 @@ const UserManagementDashboard = () => {
 
             {/* Recent Users Table */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPosts.map((post, index) => (
+              {getpost?.map((post, index) => (
                 <div
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handleViewPage(post._id);
+                  }}
                   key={index}
                   className="bg-white border-black rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
                 >

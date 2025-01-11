@@ -7,7 +7,7 @@ const mongourl: string = "mongodb+srv://4270abhishek:LUbAMBxA0San36uw@cluster0.o
 
  const connectDatabase =()=>{
       try {
-          mongoose.set("debug", true);
+        mongoose.set("debug", true);
         mongoose.connect(mongourl);
       } catch (error) {
         console.log("Error during dbconnect:",error)

@@ -7,62 +7,63 @@ import { IPost } from "../Entities/Userentities.ts";
 import { Irepository } from "../interface/user/userRepository.ts";
 import { IuserServices } from "../interface/user/userServices.ts";
 
-class UserServices implements IuserServices{
+class UserServices implements IuserServices {
   constructor(private userRepository: Irepository) {
-    this.userRepository =userRepository
+    this.userRepository = userRepository;
   }
 
   async verifyLoging(
     email: string,
     password: string
   ): Promise<Tocken | undefined> {
-
-      try {
-         const verifytheEmail = await this.userRepository.verifyEmail(email);
-         const userinfo = await this.userRepository.findtheEmail(
-           email,
-           password
-         );
-         if (!userinfo?.password) {
-           throw new Error("Invalid credentials");
-         }
-         const hashedpassword = await HashPassword.comparePassword(
-           password,
-           userinfo?.password
-         );
-
-         if (!hashedpassword) {
-           throw new Error("Wrong password");
-         }
-
-         const userPayload: userPayload = {
-           id: userinfo._id as ObjectId,
-         };
-
-         const accesstocken = generateAccessToken(userPayload);
-         const refreshtocken = generateRefreshToken(userPayload);
-
-         return { accesstocken, refreshtocken };
-        
-      } catch (error) {
-
-       
-          throw new Error("Wrong password");
+    try {
+      const verifytheEmail = await this.userRepository.verifyEmail(email);
+      const userinfo = await this.userRepository.findtheEmail(email, password);
+      if (!userinfo?.password) {
+        throw new Error("Invalid credentials");
       }
-   
+      const hashedpassword = await HashPassword.comparePassword(
+        password,
+        userinfo?.password
+      );
+
+      if (!hashedpassword) {
+        throw new Error("Wrong password");
+      }
+
+      const userPayload: userPayload = {
+        id: userinfo._id as ObjectId,
+      };
+
+      const accesstocken = generateAccessToken(userPayload);
+      const refreshtocken = generateRefreshToken(userPayload);
+
+      return { accesstocken, refreshtocken };
+    } catch (error) {
+      throw new Error("Wrong password");
+    }
   }
 
   async gettheIddetail(postId: string | any): Promise<void> {
     try {
       await this.userRepository.findIdAndDelete(postId);
     } catch (error) {
-      throw new Error("An Error occured while delete the post")
+      throw new Error("An Error occured while delete the post");
     }
   }
 
-  async getAllthepost(): Promise<IPost[] | undefined> {
+  async getAllthepost(search: string): Promise<IPost[] | undefined> {
     try {
-      const recieveallpost = await this.userRepository.findAllThePost();
+      const recieveallpost = await this.userRepository.findAllThePost(search);
+      return recieveallpost;
+    } catch (error) {
+      throw new Error("An Error occured during Featch data");
+    }
+  }
+
+  async viewDetailPage(postid: string | undefined):Promise<IPost | null> {
+    try {
+      const recieveallpost = await this.userRepository.findTheDetailPage(postid);
       return recieveallpost;
     } catch (error) {
       throw new Error("An Error occured during Featch data");
@@ -120,7 +121,7 @@ class UserServices implements IuserServices{
         console.error("Profile image is missing");
       }
     } catch (error) {
-       throw new Error("An Error occured during upload post");
+      throw new Error("An Error occured during upload post");
     }
   }
 
@@ -152,10 +153,9 @@ class UserServices implements IuserServices{
         cloudinaryImageUrl
       );
     } catch (error) {
-        throw new Error("An Error occured during Register");
+      throw new Error("An Error occured during Register");
     }
   }
 }
-
 
 export default UserServices;
