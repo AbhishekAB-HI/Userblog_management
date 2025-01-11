@@ -10,7 +10,7 @@ import { usePosts } from "./Posthook";
  export const postEditing = (saveID: string) => {
    const [Loading, setLoading] = useState(false);
    const [isEditOpen, setIsEditOpen] = useState(false);
-     const { fetchAllPosts  } = usePosts();
+     const { fetchAllPosts  } = usePosts("");
    const validationSchema = Yup.object({
      title: Yup.string()
        .required("Title is required")

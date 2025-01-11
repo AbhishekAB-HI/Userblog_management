@@ -4,7 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 
- export const viewPost = (postid:string | undefined) => {
+ export const viewPost = () => {
   const [posts, setPosts] = useState<IPost>();
   const fetchViewPage = async (postid: string | undefined) => {
     try {

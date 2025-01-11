@@ -6,7 +6,7 @@ import { viewPost } from "../../Customhookslogic/Viewpost";
 const DetailPage = ({  }) => {
    const { postid } = useParams();
    const navigate = useNavigate()
- const { fetchViewPage, posts } = viewPost(postid);
+ const { fetchViewPage, posts } = viewPost();
     useEffect(() => {
        fetchViewPage(postid);
     }, []);

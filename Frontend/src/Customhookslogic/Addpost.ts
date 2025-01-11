@@ -8,7 +8,7 @@ import { usePosts } from "./Posthook";
 export const Postadding = () => {
     const [Loading1, setLoading1] = useState(false)
     const [isOpen, setIsOpen] = useState(false);
-    const { fetchAllPosts  } = usePosts();
+    const { fetchAllPosts  } = usePosts("");
     const validationSchema = Yup.object({
     title: Yup.string()
       .required("Title is required")
