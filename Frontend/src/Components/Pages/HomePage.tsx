@@ -21,10 +21,7 @@ const UserManagementDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedPosts, setExpandedPosts] = useState<ExpandedPosts>({});
   const { Loading1, formik1, isOpen, setIsOpen } = Postadding();
-  const { formik, Loading, isEditOpen, setIsEditOpen } = postEditing(
-    saveID,
-    postinfo
-  );
+  const { formik, Loading, isEditOpen, setIsEditOpen } = postEditing(saveID);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   type RootState = ReturnType<typeof store.getState>;
   const [currentPage, setCurrentPage] = useState(1);
