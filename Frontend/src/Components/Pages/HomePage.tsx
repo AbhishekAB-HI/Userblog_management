@@ -1,29 +1,74 @@
 import { clearuserAccessTocken } from "../../Reduxstore/Reduxslice";
-import { UserPlus, ChevronDown, Edit, Trash2, ChevronUp } from "lucide-react";
+import { UserPlus, ChevronDown, Edit, Trash2, ChevronUp, FolderOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { ExpandedPosts } from "../../interfaces/Userinfo";
+import { ExpandedPosts, IPost1 } from "../../interfaces/Userinfo";
 import { usePosts } from "../../Customhookslogic/Posthook";
 import { Postadding } from "../../Customhookslogic/Addpost";
 import { postEditing } from "../../Customhookslogic/Editpost";
 import { handleDelete } from "../../Customhookslogic/DeletePost";
 import { store } from "../../Reduxstore/Reduxstore";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
+import DOMPurify from "dompurify";
 const UserManagementDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [saveID, setSaveid] = useState("");
+  const [postinfo, setPostinfo] = useState<Partial<IPost1>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedPosts, setExpandedPosts] = useState<ExpandedPosts>({});
-
   const { Loading1, formik1, isOpen, setIsOpen } = Postadding();
-  const { formik, Loading, isEditOpen, setIsEditOpen } = postEditing(saveID);
+  const { formik, Loading, isEditOpen, setIsEditOpen } = postEditing(
+    saveID,
+    postinfo
+  );
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   type RootState = ReturnType<typeof store.getState>;
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(6);
   const { fetchAllPosts, totalPages } = usePosts(searchQuery);
+
+
+
+
+  useEffect(() => {
+    if (postinfo && postinfo._id) {
+      formik.setValues({
+        title: postinfo.title || "",
+        description: postinfo.description || "",
+        productimage: null,
+      });
+    }
+  }, [postinfo]); // This effect runs every time postinfo changes
+
+  const quillModules = {
+    toolbar: [
+      [{ font: [] }, { size: [] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link", "image", "video"],
+      [{ align: [] }],
+      ["clean"],
+    ],
+  };
+
+  const quillFormats = [
+    "font",
+    "size",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "link",
+    "image",
+    "video",
+    "align",
+  ];
 
   useEffect(() => {
     fetchAllPosts(currentPage, postsPerPage);
@@ -33,8 +78,6 @@ const UserManagementDashboard = () => {
     setCurrentPage(newPage);
   };
 
-
-
   useEffect(() => {
     try {
       fetchAllPosts();
@@ -42,9 +85,6 @@ const UserManagementDashboard = () => {
       console.error("Error fetching posts:", error);
     }
   }, [searchQuery]);
-
-
-  
 
   const getpost = useSelector(
     (state: RootState) => state.accessStore.savePosts
@@ -81,16 +121,24 @@ const UserManagementDashboard = () => {
 
   const toggleModal = () => {
     setIsOpen(!isOpen);
+    formik1.setFieldValue("description", "");
+    formik1.setFieldValue("title", "");
   };
 
-  const toggleEditModal = (id: string) => {
+  const toggleEditModal = (id: string, description: string, title: string) => {
     setSaveid(id);
+    const obj: Partial<IPost1> = {
+      _id: id,
+      title: title,
+      description: description,
+    };
+
+    setPostinfo(obj);
     setIsEditOpen(!isEditOpen);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
@@ -128,7 +176,6 @@ const UserManagementDashboard = () => {
           className="search-input w-full border border-r-4 p-2"
         />
 
-        {/* User Management Tools */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -148,9 +195,7 @@ const UserManagementDashboard = () => {
                 className="fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full flex overflow-y-auto overflow-x-hidden"
               >
                 <div className="relative p-4  w-full  border-black  max-w-md max-h-full">
-                  {/* Modal content */}
                   <div className="relative border-2 bg-white rounded-lg shadow dark:bg-gray-50">
-                    {/* Modal header */}
                     <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                       <h3 className="text-lg font-semibold text-black dark:text-black">
                         Create New Product
@@ -178,12 +223,13 @@ const UserManagementDashboard = () => {
                         <span className="sr-only">Close modal</span>
                       </button>
                     </div>
-                    {/* Modal body */}
+
                     <form
                       onSubmit={formik1.handleSubmit}
                       className="p-4 md:p-5"
                     >
                       <div className="grid gap-4 mb-4 grid-cols-2">
+                        {/* Title Field */}
                         <div className="col-span-2">
                           <label
                             htmlFor="title"
@@ -191,17 +237,22 @@ const UserManagementDashboard = () => {
                           >
                             Title
                           </label>
-                          <input
-                            type="text"
-                            name="title"
-                            id="title"
-                            onChange={formik1.handleChange}
-                            onBlur={formik1.handleBlur}
-                            className={`bg-gray-50 border ${
+                          <ReactQuill
+                            value={formik1.values.title }
+                            onChange={(value) =>
+                              formik1.setFieldValue("title", value)
+                            }
+                            onBlur={() =>
+                              formik1.setFieldTouched("title", true)
+                            }
+                            theme="snow"
+                            modules={quillModules}
+                            formats={quillFormats}
+                            className={`custom-quill ${
                               formik1.touched.title && formik1.errors.title
                                 ? "border-red-500"
                                 : "border-black"
-                            } text-black text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-white dark:border-gray-500`}
+                            } text-black rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full dark:bg-white dark:border-gray-500`}
                             placeholder="Type product title"
                           />
                           {formik1.touched.title && formik1.errors.title && (
@@ -211,6 +262,7 @@ const UserManagementDashboard = () => {
                           )}
                         </div>
 
+                        {/* Description Field */}
                         <div className="col-span-2">
                           <label
                             htmlFor="description"
@@ -218,20 +270,25 @@ const UserManagementDashboard = () => {
                           >
                             Product Description
                           </label>
-                          <textarea
-                            id="description"
-                            name="description"
-                            rows={4}
-                            onChange={formik1.handleChange}
-                            onBlur={formik1.handleBlur}
-                            className={`bg-gray-50 border ${
+                          <ReactQuill
+                            value={formik1.values.description}
+                            onChange={(value) =>
+                              formik1.setFieldValue("description", value)
+                            }
+                            onBlur={() =>
+                              formik1.setFieldTouched("description", true)
+                            }
+                            theme="snow"
+                            modules={quillModules}
+                            formats={quillFormats}
+                            className={`custom-quill ${
                               formik1.touched.description &&
                               formik1.errors.description
                                 ? "border-red-500"
                                 : "border-black"
-                            } text-black text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-white dark:border-gray-500`}
+                            } text-black rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full dark:bg-white dark:border-gray-500`}
                             placeholder="Write product description here"
-                          ></textarea>
+                          />
                           {formik1.touched.description &&
                             formik1.errors.description && (
                               <p className="text-red-500 text-xs mt-1">
@@ -240,6 +297,7 @@ const UserManagementDashboard = () => {
                             )}
                         </div>
 
+                        {/* Upload Button */}
                         <div className="flex items-center justify-center">
                           <label
                             htmlFor="file-upload"
@@ -282,6 +340,7 @@ const UserManagementDashboard = () => {
                           )}
                       </div>
 
+                      {/* Submit Button */}
                       <button
                         type="submit"
                         className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
@@ -313,9 +372,7 @@ const UserManagementDashboard = () => {
                 className="fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full flex overflow-y-auto overflow-x-hidden"
               >
                 <div className="relative p-4  w-full  border-black  max-w-md max-h-full">
-                  {/* Modal content */}
                   <div className="relative border-2 bg-white rounded-lg shadow dark:bg-gray-50">
-                    {/* Modal header */}
                     <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                       <h3 className="text-lg font-semibold text-black dark:text-black">
                         Edit Product
@@ -343,9 +400,10 @@ const UserManagementDashboard = () => {
                         <span className="sr-only">Close modal</span>
                       </button>
                     </div>
-                    {/* Modal body */}
+
                     <form onSubmit={formik.handleSubmit} className="p-4 md:p-5">
                       <div className="grid gap-4 mb-4 grid-cols-2">
+                        {/* Title Field */}
                         <div className="col-span-2">
                           <label
                             htmlFor="title"
@@ -353,13 +411,18 @@ const UserManagementDashboard = () => {
                           >
                             Title
                           </label>
-                          <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            className="bg-gray-50 border border-black text-black text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                          <ReactQuill
+                            value={formik.values.title}
+                            onChange={(value) =>
+                              formik.setFieldValue("title", value)
+                            }
+                            onBlur={() => formik.setFieldTouched("title", true)}
+                            theme="snow"
+                            className={`custom-quill ${
+                              formik.touched.title && formik.errors.title
+                                ? "border-red-500"
+                                : "border-black"
+                            } text-black rounded-lg`}
                             placeholder="Type product title"
                           />
                           {formik.touched.title && formik.errors.title && (
@@ -369,6 +432,7 @@ const UserManagementDashboard = () => {
                           )}
                         </div>
 
+                        {/* Description Field */}
                         <div className="col-span-2">
                           <label
                             htmlFor="description"
@@ -376,15 +440,23 @@ const UserManagementDashboard = () => {
                           >
                             Product Description
                           </label>
-                          <textarea
-                            id="description"
-                            rows={4}
-                            name="description"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            className="bg-gray-50 border border-black text-black text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                          <ReactQuill
+                            value={formik.values.description}
+                            onChange={(value) =>
+                              formik.setFieldValue("description", value)
+                            }
+                            onBlur={() =>
+                              formik.setFieldTouched("description", true)
+                            }
+                            theme="snow"
+                            className={`custom-quill ${
+                              formik.touched.description &&
+                              formik.errors.description
+                                ? "border-red-500"
+                                : "border-black"
+                            } text-black rounded-lg`}
                             placeholder="Write product description here"
-                          ></textarea>
+                          />
                           {formik.touched.description &&
                             formik.errors.description && (
                               <p className="text-red-500 text-sm">
@@ -393,6 +465,7 @@ const UserManagementDashboard = () => {
                             )}
                         </div>
 
+                        {/* Upload Button */}
                         <div className="flex items-center justify-center">
                           <label
                             htmlFor="productimage"
@@ -424,7 +497,6 @@ const UserManagementDashboard = () => {
                               className="hidden"
                             />
                           </label>
-
                           {formik.touched.productimage &&
                             formik.errors.productimage && (
                               <p className="text-red-500 text-sm">
@@ -433,9 +505,10 @@ const UserManagementDashboard = () => {
                             )}
                         </div>
                       </div>
+
                       <button
                         type="submit"
-                        className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                       >
                         {Loading ? "Loading..." : "Submit"}
                       </button>
@@ -445,87 +518,107 @@ const UserManagementDashboard = () => {
               </div>
             )}
 
-            {/* Recent Users Table */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {getpost?.map((post, index) => (
-                <div
-                  key={index}
-                  className="bg-white border-black rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
-                >
-                  {/* Image Container */}
+              {getpost.length > 0 ? (
+                getpost?.map((post, index) => (
                   <div
-                    onClick={(event) => {
-                      event.preventDefault();
-                      handleViewPage(post._id);
-                    }}
-                    className="relative h-48 overflow-hidden"
+                    key={index}
+                    className="bg-white border-black rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
                   >
-                    <img
-                      src={post.image}
-                      alt={post.title}
-                      className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-
-                  {/* Content Container */}
-                  <div className="p-6">
-                    {/* Title and Actions */}
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors">
-                        {post.title}
-                      </h3>
+                    <div
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handleViewPage(post._id);
+                      }}
+                      className="relative h-48 overflow-hidden"
+                    >
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
+                      />
                     </div>
 
-                    {/* Description */}
-                    <div className="mb-4">
-                      <p
-                        className={`text-gray-600 text-sm ${
-                          !expandedPosts[post._id] && "line-clamp-3"
-                        }`}
-                      >
-                        {post.description}
-                      </p>
-                      {post.description.length > 150 && (
-                        <button
-                          onClick={() => toggleDescription(post._id)}
-                          className="mt-2 text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
-                        >
-                          {expandedPosts[post._id] ? (
-                            <>
-                              Show Less <ChevronUp size={16} />
-                            </>
-                          ) : (
-                            <>
-                              Read More <ChevronDown size={16} />
-                            </>
-                          )}
-                        </button>
-                      )}
-                    </div>
+                    <div className="p-6">
+                      {/* Title */}
+                      <div className="flex justify-between items-start mb-3">
+                        <h3
+                          className="text-xl font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(post.title),
+                          }}
+                        />
+                      </div>
 
-                    {/* Actions Footer */}
-                    <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                      {/* Edit/Delete Actions */}
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => toggleEditModal(post._id)}
-                          className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200"
-                          title="Edit post"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(post._id, fetchAllPosts)}
-                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200"
-                          title="Delete post"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                      {/* Description */}
+                      <div className="mb-4">
+                        <div
+                          className={`text-gray-600 text-sm ${
+                            !expandedPosts[post._id] && "line-clamp-3"
+                          }`}
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(post.description),
+                          }}
+                        />
+                        {post.description.length > 150 && (
+                          <button
+                            onClick={() => toggleDescription(post._id)}
+                            className="mt-2 text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
+                          >
+                            {expandedPosts[post._id] ? (
+                              <>
+                                Show Less <ChevronUp size={16} />
+                              </>
+                            ) : (
+                              <>
+                                Read More <ChevronDown size={16} />
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() =>
+                              toggleEditModal(
+                                post._id,
+                                post.description,
+                                post.title
+                              )
+                            }
+                            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200"
+                            title="Edit post"
+                          >
+                            <Edit size={18} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleDelete(post._id, fetchAllPosts)
+                            }
+                            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200"
+                            title="Delete post"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="w-full min-h-[400px] flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                  <FolderOpen className="w-16 h-16 text-gray-400 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                    No Posts Found
+                  </h3>
+                  <p className="text-gray-500 text-center max-w-md mb-6">
+                    There are no blog posts to display at the moment. Create
+                    your first post to get started!
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

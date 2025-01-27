@@ -3,7 +3,7 @@ import cloudinary from "../Config/Cloudinary.ts";
 import { Tocken, userPayload } from "../Types/Usertoc.ts";
 import HashPassword from "../Utils/Hashpassword.ts";
 import { generateAccessToken, generateRefreshToken } from "../Utils/Jwt.ts";
-import { IPost } from "../Entities/Userentities.ts";
+import { IPost, IReview } from "../Entities/Userentities.ts";
 import { Irepository } from "../interface/user/userRepository.ts";
 import { IuserServices } from "../interface/user/userServices.ts";
 
@@ -47,6 +47,36 @@ class UserServices implements IuserServices {
   async gettheIddetail(postId: string | any): Promise<void> {
     try {
       await this.userRepository.findIdAndDelete(postId);
+    } catch (error) {
+      throw new Error("An Error occured while delete the post");
+    }
+  }
+  async passReviewData(
+    name: string,
+    comment: string,
+    rating: number,
+    postId: string
+  ): Promise<void> {
+    try {
+      console.log(name, "ser1");
+      console.log(comment, "ser1");
+      console.log(rating, "ser1");
+      console.log(postId, "ser1");
+      await this.userRepository.findPostAndUpdateReview(
+        name,
+        comment,
+        rating,
+        postId
+      );
+    } catch (error) {
+      throw new Error("An Error occured while delete the post");
+    }
+  }
+
+  async FindallReview(postid: string): Promise<IReview[] | any> {
+    try {
+   const getReviews =   await this.userRepository.findAllTheReviewFromRepo(postid);
+   return getReviews;
     } catch (error) {
       throw new Error("An Error occured while delete the post");
     }

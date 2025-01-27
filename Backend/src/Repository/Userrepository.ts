@@ -1,7 +1,8 @@
 import userBlogSchema from "../Models/Userblogschema.ts";
-import { IPost, IUser } from "../Entities/Userentities.ts";
+import { IPost, IReview, IUser } from "../Entities/Userentities.ts";
 import postSchemaDetail from "../Models/PostSchema.ts";
 import { Irepository } from "../interface/user/userRepository.ts";
+import mongoose from "mongoose";
 
 class UserRepository implements Irepository {
   async checkEmailExist(email: string): Promise<void> {
@@ -78,10 +79,8 @@ class UserRepository implements Irepository {
     page: number
   ): Promise<{ posts: IPost[]; totalPages: number } | undefined> {
     try {
-      // Calculate the skip value based on the current page and limit
       const skip = (page - 1) * limit;
 
-      // Count total posts matching the search query
       const totalPosts = await postSchemaDetail.countDocuments({
         $or: [
           { title: { $regex: string, $options: "i" } },
@@ -89,7 +88,6 @@ class UserRepository implements Irepository {
         ],
       });
 
-      // Fetch the posts with pagination and sorting by createdAt in descending order
       const posts = await postSchemaDetail
         .find({
           $or: [
@@ -97,11 +95,10 @@ class UserRepository implements Irepository {
             { description: { $regex: string, $options: "i" } },
           ],
         })
-        .skip(skip) // Skip posts based on pagination
-        .limit(limit) // Limit the number of posts returned
-        .sort({ createdAt: -1 }); // Sort by createdAt in descending order (latest first)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 });
 
-      // Calculate total pages
       const totalPages = Math.ceil(totalPosts / limit);
 
       return { posts, totalPages };
@@ -131,6 +128,71 @@ class UserRepository implements Irepository {
       }
     } catch (error) {
       throw new Error("Cannot find post");
+    }
+  }
+  async findAllTheReviewFromRepo(postid: string): Promise<IReview[] | null> {
+    try {
+      const data = await postSchemaDetail.aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(postid) } },
+        { $unwind: "$Review" },
+        { $sort: { "Review.date": -1 } }, 
+        {
+          $group: {
+            _id: "$_id",
+            title: { $first: "$title" },
+            description: { $first: "$description" },
+            image: { $first: "$image" },
+            Review: { $push: "$Review" },
+          },
+        },
+      ]);
+
+    return data[0]?.Review || null; 
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async findPostAndUpdateReview(
+    name: string,
+    comment: string,
+    rating: number,
+    postId: string
+  ): Promise<void> {
+    try {
+      const objectId = new mongoose.Types.ObjectId(postId);
+      const post = await postSchemaDetail.findById(objectId);
+      if (!post) {
+        console.error(`Post with ID ${postId} does not exist.`);
+        throw new Error("Post not found");
+      }
+
+      const updateReview = await postSchemaDetail.findByIdAndUpdate(
+        objectId,
+        {
+          $push: {
+            Review: {
+              ReviewedBy: name,
+              Rating: rating,
+              comment: comment,
+              date: new Date(),
+            },
+          },
+          updatedAt: new Date(),
+        },
+        { new: true }
+      );
+
+      if (!updateReview) {
+        console.error("Failed to update review");
+        throw new Error("Post not found or failed to update");
+      }
+
+      console.log("Updated Review:", updateReview);
+    } catch (error) {
+      console.error("Error updating review:", error);
+      throw new Error("Cannot update review in the post");
     }
   }
 

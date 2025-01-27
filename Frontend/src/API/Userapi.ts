@@ -29,6 +29,7 @@ export const addPost = async (formData: FormData) => {
   });
 };
 
+
 export const editPost = async (formData: FormData) => {
   return await axiosInterseptor.post(API_ENDPOINTS.EDIT_POST, formData, {
     headers: { "Content-Type": "multipart/form-data" },

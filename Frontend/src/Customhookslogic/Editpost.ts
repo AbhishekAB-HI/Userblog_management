@@ -10,7 +10,7 @@ import { usePosts } from "./Posthook";
  export const postEditing = (saveID: string) => {
    const [Loading, setLoading] = useState(false);
    const [isEditOpen, setIsEditOpen] = useState(false);
-     const { fetchAllPosts  } = usePosts("");
+   const { fetchAllPosts } = usePosts("");
    const validationSchema = Yup.object({
      title: Yup.string()
        .required("Title is required")
@@ -38,11 +38,11 @@ import { usePosts } from "./Posthook";
            formData.append("productimage", values.productimage);
          }
 
-         const { data } =await editPost(formData);
+         const { data } = await editPost(formData);
 
          if (data.message === "Post edited successful") {
            toast.success("Post edited successful");
-          fetchAllPosts()
+           fetchAllPosts();
            setIsEditOpen(!isEditOpen);
          }
        } catch (error) {
@@ -53,11 +53,5 @@ import { usePosts } from "./Posthook";
      },
    });
 
-
-return { formik, Loading, isEditOpen, setIsEditOpen };
-
-
-
-
-
+   return { formik, Loading, isEditOpen, setIsEditOpen };
  };

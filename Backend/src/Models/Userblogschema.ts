@@ -23,6 +23,7 @@ const userSchema: Schema = new Schema({
   profileImage: {
     type: String,
   },
+  
 });
 
 

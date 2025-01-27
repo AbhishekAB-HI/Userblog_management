@@ -1,5 +1,5 @@
-import { HttpStatusCode } from "../Constants and Enum/HttpStatusCode.ts"; 
-import { ResponseMessages } from "../Constants and Enum/Messages.ts"; 
+import { HttpStatusCode } from "../Constants and Enum/HttpStatusCode.ts";
+import { ResponseMessages } from "../Constants and Enum/Messages.ts";
 import { IuserServices } from "../interface/user/userServices.ts";
 import { IUserController } from "../interface/user/userController.ts";
 import { Request, Response } from "express";
@@ -50,6 +50,21 @@ class Usercontroller implements IUserController {
     }
   }
 
+  async findAllReviews(req: Request, res: Response) {
+    try {
+
+      const postid= req.query.id
+      const findtheReviews = await this.userServices.FindallReview(postid);
+      res
+        .status(HttpStatusCode.OK)
+        .json({ message: ResponseMessages.GET_ALL_REVIEWS, findtheReviews });
+    } catch (error) {
+      res
+        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+        .json({ message: ResponseMessages.SOMETHING_WENT_WRONG });
+    }
+  }
+
   async findpostandedit(req: Request, res: Response) {
     try {
       const { title, description, saveID } = req.body;
@@ -90,7 +105,33 @@ class Usercontroller implements IUserController {
     try {
       const { postid } = req.query;
       const Allpostrecived = await this.userServices.viewDetailPage(postid);
-      res.status(HttpStatusCode.OK).json({ message: ResponseMessages.ALL_POSTS_FOUND, Allpostrecived });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ message: ResponseMessages.ALL_POSTS_FOUND, Allpostrecived });
+    } catch (error) {
+      res
+        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+        .json({ message: ResponseMessages.SOMETHING_WENT_WRONG });
+    }
+  }
+
+  async AddReview(req: Request, res: Response) {
+    try {
+      const data = req.body;
+      const name = data.newReview.name;
+      const comment = data.newReview.comment;
+      const rating = data.newReview.rating;
+      const postId = data.postid;
+
+      const ReviewData = await this.userServices.passReviewData(
+        name,
+        comment,
+        rating,
+        postId
+      );
+      res
+        .status(HttpStatusCode.OK)
+        .json({ message: ResponseMessages.REVIEW_ADDED });
     } catch (error) {
       res
         .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
@@ -101,20 +142,22 @@ class Usercontroller implements IUserController {
   async findAllPost(req: Request, res: Response) {
     try {
       const { search, limit, page } = req.query;
-      const Allpostrecived = await this.userServices.getAllthepost(search,limit,page);
+      const Allpostrecived = await this.userServices.getAllthepost(
+        search,
+        limit,
+        page
+      );
 
-      if (!Allpostrecived){
+      if (!Allpostrecived) {
         throw new Error("No posts found");
       }
-      
+
       const { posts, totalPages } = Allpostrecived;
-        res
-          .status(HttpStatusCode.OK)
-          .json({
-            message: ResponseMessages.ALL_POSTS_FOUND,
-            posts,
-            totalPages,
-          });
+      res.status(HttpStatusCode.OK).json({
+        message: ResponseMessages.ALL_POSTS_FOUND,
+        posts,
+        totalPages,
+      });
     } catch (error) {
       res
         .status(HttpStatusCode.INTERNAL_SERVER_ERROR)

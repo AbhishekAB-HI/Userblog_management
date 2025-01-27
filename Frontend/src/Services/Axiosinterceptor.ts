@@ -6,7 +6,6 @@ import {
 } from "../Reduxstore/Reduxslice";
 import toast from "react-hot-toast";
 
-// ClientNew;
 const axiosInterseptor = axios.create({
   baseURL: "https://userblog-management.onrender.com",
   headers: {

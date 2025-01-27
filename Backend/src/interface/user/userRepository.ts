@@ -1,4 +1,4 @@
-import { IPost, IUser } from "../../Entities/Userentities";
+import { IPost, IReview, IUser } from "../../Entities/Userentities";
 
 
 
@@ -16,6 +16,6 @@ export interface Irepository {
   findtheEmail(email: string,password: string): Promise<IUser | null | undefined>
   verifyEmail(email: string): Promise<void> 
   savetheuser(name: string,email: string,password: string,image: string): Promise<void>
-
-  
+ findPostAndUpdateReview(name: string,comment: string,rating: number,postId:string): Promise<void> 
+findAllTheReviewFromRepo(postid: string): Promise<IReview[] | any>
 }

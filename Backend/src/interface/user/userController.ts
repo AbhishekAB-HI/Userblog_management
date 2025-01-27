@@ -8,4 +8,6 @@ export interface IUserController {
   findAllPost(req: Request, res: Response): Promise<void>;
   refreshTocken(req: Request, res: Response): Promise<void>;
   userLogin(req: Request, res: Response): Promise<void>;
+  AddReview(req: Request, res: Response): Promise<void>;
+  findAllReviews(req: Request, res: Response):Promise<void>
 }

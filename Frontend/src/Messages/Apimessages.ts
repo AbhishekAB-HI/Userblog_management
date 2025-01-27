@@ -19,6 +19,8 @@ export const API_ENDPOINTS = {
   GET_POST: "/api/user/getpost",
   VIEW_PAGE: "/api/user/viewpage",
   ADD_POST: "/api/user/addpost",
+  ADD_REVIEW: "/api/user/addreview",
+  GET_REVIEW: "/api/user/getreview",
   DELETE_POST: "/api/user/deletepost",
 };
 

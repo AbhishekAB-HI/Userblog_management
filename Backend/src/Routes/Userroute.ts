@@ -37,8 +37,11 @@ router.post("/refreshtoken",userController.refreshTocken.bind(userController));
 router.get("/viewpage", userController.detailPage.bind(userController));
 router.post("/addpost",AuthenticationMiddleware,upload.single("productuploadimage"),userController.AddPost.bind(userController));
 router.get("/getpost",AuthenticationMiddleware, userController.findAllPost.bind(userController));
+router.post("/addreview",AuthenticationMiddleware, userController.AddReview.bind(userController));
 router.delete("/deletepost",AuthenticationMiddleware, userController.findAndDeletepost.bind(userController));
 router.post("/editpost",AuthenticationMiddleware,upload.single("productimage"),userController.findpostandedit.bind(userController));
+router.get("/getreview",AuthenticationMiddleware, userController.findAllReviews.bind(userController));
+
 
 
 

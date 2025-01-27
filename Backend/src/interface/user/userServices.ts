@@ -1,4 +1,4 @@
-import { IPost } from "../../Entities/Userentities";
+import { IPost, IReview } from "../../Entities/Userentities";
 import { Tocken } from "../../Types/Usertoc";
 
 
@@ -11,4 +11,6 @@ export interface IuserServices {
   SendPostinfo(title: string,description: string,postimage: string | undefined):Promise<void> 
   VerifyRegister(name: string, email: string,password: string,profileImage: string | undefined):Promise<void>
   viewDetailPage(postid: string | any):Promise<IPost | null> 
+  passReviewData(name:string, comment:string, rating:number,postId:string): Promise<void> 
+  FindallReview(postid: string |any): Promise<IReview[] | any>
 }
